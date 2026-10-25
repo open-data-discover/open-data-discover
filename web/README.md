@@ -1,52 +1,32 @@
-# web
+# React + TypeScript + Vite
 
-A static site for browsing the analysis: pick a column and see the columns in other
-datasets that share its values, best first. Plain HTML and ES modules; no build step.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Run it
+Currently, two official plugins are available:
 
-```bash
-cd analyze && uv run analyze.py run -r ../web/data   # or copy an existing results/ folder to web/data/
-cd ../web && python -m http.server 8000              # then open http://localhost:8000
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the Oxlint configuration
+
+If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+
+```json
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "options": {
+    "typeAware": true
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
 ```
 
-The page loads `data/manifest.json`, `data/columns.parquet` and `data/joins.parquet`, so it must be
-served over HTTP (browsers block module scripts and `fetch` on `file://`). Any static host works,
-e.g. GitHub Pages; commit `data/` if the host serves from the repository.
-
-## Pages
-
-Type to find a dataset (the box suggests titles), then pick one of its columns, to see the columns in
-other datasets that share its values. Only joins scoring at least 0.3 are shown (`MIN_SCORE` in
-`data.js`), and the picker lists only datasets and columns with such a join to another dataset.
-A dataset's columns are grouped by resource (file).
-
-The URL hash holds the chosen column (`#column=<key>`), so every column page can be linked and
-bookmarked. Joins are listed in score order, 25 at a time, as `Dataset › COLUMN` with the resource
-underneath and a few example values. The join-score prototype displays percentages and colours
-(green at 80%+, amber at 50–79%, red below 50%). Hover or focus the score to preview both directions
-of overlap; click or tap to keep it open, with a bottom sheet on phones. Escape, a click outside,
-or the close button dismisses it. These colours describe overlap, not join confidence.
-Joins within the same dataset (often the same data in another map projection) are hidden by default,
-with a checkbox to include them.
-
-Each join has a small red ! button (Report) in its top-right corner. It opens a dialog below it that asks what is
-wrong with it (plus an optional note) and sends the report to a Google Sheet; see `../reports/README.md`.
-
-## Files
-
-| File | Contents |
-| --- | --- |
-| `index.html`, `style.css` | Page shell and styles (light and dark) |
-| `app.js` | The picker, routing, page state and events |
-| `data.js` | Loading the results; per-column join lists; datasets for the picker |
-| `views.js` | HTML for each view (all data is escaped) |
-| `report.js` | The report dialog; sending reports to `REPORTS_URL` |
-| `score-prototype.js` | Prototype score popover and mobile sheet interactions (#8, #35, #36) |
-| `vendor/hyparquet.js` | [hyparquet](https://github.com/hyparam/hyparquet) 1.31.2 (MIT), bundled into one file |
-| `vendor/inter.woff2` | [Inter](https://rsms.me/inter/) variable font, Latin subset (OFL), from `@fontsource-variable/inter` 5.1.0 |
-
-The site does no scoring: joins arrive sorted from `analyze`, and each column's list keeps that order.
-
-To update hyparquet: `npm install hyparquet` in a scratch folder, then
-`npx esbuild node_modules/hyparquet/src/index.js --bundle --format=esm --minify --outfile=vendor/hyparquet.js`.
+See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
