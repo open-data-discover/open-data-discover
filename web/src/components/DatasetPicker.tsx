@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router';
 
 import {
-  columnsByResource,
+  joinableColumnsByResource,
   findDatasetByTitle,
   searchDatasets,
 } from '../data/queries';
@@ -29,7 +29,7 @@ export default function DatasetPicker({
   column?: Column;
   size?: Size;
 }) {
-  const { datasets } = useData();
+  const datasets = useData().datasets.filter(d => d.joinable);
   const navigate = useNavigate();
   const listId = useId();
   const optionId = (i: number) => `${listId}-${i}`;
@@ -146,7 +146,7 @@ export default function DatasetPicker({
           }}>
           <option value="">Choose a column</option>
           {dataset &&
-            [...columnsByResource(dataset)].map(([resource, columns]) => (
+            [...joinableColumnsByResource(dataset)].map(([resource, columns]) => (
               <optgroup key={resource} label={resource}>
                 {columns.map(c => (
                   <option key={c.key} value={c.key}>

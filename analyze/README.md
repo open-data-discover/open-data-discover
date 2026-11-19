@@ -9,6 +9,7 @@ uv run analyze.py list --owner transit            # preview a selection
 uv run analyze.py run --owner parks --limit 50    # writes results/
 uv run analyze.py show "Neighbourhoods - 4326::AREA_NAME"
 uv run analyze.py export                          # writes joins.csv
+uv run analyze.py datasets -r ../web/public/data  # (re)writes datasets.parquet for existing results
 ```
 
 The data folder defaults to `../download/data` (override with `-d PATH` or `$OPEN_TORONTO_DL_ROOT`).
@@ -32,6 +33,7 @@ Filters work with `owners`, `list` and `run`. Different filters combine with AND
 | --- | --- |
 | `columns.parquet` | One row per profiled column: `id` (row number), `key` (`resource_id::column`), `package`, `resource_id`, `resource`, `file`, `column`, `n_values`, `n_distinct`, `avg_length`, `samples` |
 | `joins.parquet` | One row per candidate pair of columns from different files, best first: `id_a`, `id_b` (column ids, a < b), `shared` (distinct values in common), `containment_a_in_b`, `containment_b_in_a`, `jaccard`, `score` |
+| `datasets.parquet` | One row per selected package, from its portal metadata, for exploring datasets: `name`, `id`, `title`, `publisher`, `excerpt`, `description` (Markdown), `topics`, `civic_issues`, `tags` (lists of strings; `civic_issues` is often empty), `category`, `refresh_rate`, `last_refreshed` (`YYYY-MM-DD`), `columns` (every CSV column from its header, as `resource_id`, `resource`, `name`; including columns too short to profile) |
 | `manifest.json` | Selection, parameters, packages analyzed with each resource's `last_modified`, counts. Written last: no manifest means an incomplete run. |
 
 Scores, for a pair sharing `shared` distinct values:
@@ -48,6 +50,9 @@ containment compares a column's values with each other and the weights mostly ca
 There is no score threshold: every candidate pair is kept, sorted by score. To find a column's joins,
 take the rows where `id_a` or `id_b` is its `id`; they are already in order.
 
+`datasets` writes `datasets.parquet` for the packages listed in an existing results folder's manifest, reading
+their metadata from the download folder, so the site's data can get it without running the analysis again.
+
 `export` writes the same joins as a readable CSV (`joins.csv`), with package, resource, file and column
 names for both sides. `show COLUMN` lists the joins of one column. COLUMN is `[PACKAGE/]RESOURCE::COLUMN`,
 just `COLUMN`, a key, or the label `show` prints.
@@ -62,6 +67,7 @@ The Parquet files use Snappy compression and 32-bit integers, so JavaScript read
 | `packages.py` | 1. Find complete packages in the download folder; select by owner / name / limit |
 | `columns.py` | 2. Read CSVs and profile each column: distinct values, stats, samples |
 | `joins.py` | 3-5. Presence matrix, candidate pairs, exact shared counts, scores |
+| `datasets.py` | Describe the selected packages: topics, civic issues, descriptions |
 | `results.py` | Write / read a results folder |
 | `views.py` | Readable views: the join table, one column's joins, column lookup |
 | `analyze.py` | The command line |

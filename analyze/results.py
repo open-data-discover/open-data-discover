@@ -3,6 +3,7 @@
     <results>/
       columns.parquet    one row per profiled column; id is the row number
       joins.parquet      one row per scored pair of columns (see joins.py), best first
+      datasets.parquet   one row per selected package: topics, civic issues, description (see datasets.py)
       manifest.json      written last: selection, parameters, package versions, counts
 
 The folder is complete only once ``manifest.json`` exists; it is removed first
@@ -19,10 +20,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from datasets import write_datasets
+
 FORMAT_VERSION = 2
 MANIFEST = "manifest.json"
 COLUMNS = "columns.parquet"
 JOINS = "joins.parquet"
+DATASETS = "datasets.parquet"
 
 
 class ResultsError(Exception):
@@ -68,17 +72,18 @@ def package_versions(packages, files) -> list:
     ]
 
 
-def write_results(folder, *, columns: pd.DataFrame, joins: pd.DataFrame, manifest: dict) -> None:
+def write_results(folder, *, columns: pd.DataFrame, joins: pd.DataFrame, packages, manifest: dict) -> None:
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     (folder / MANIFEST).unlink(missing_ok=True)  # incomplete until the manifest is back
     columns.to_parquet(folder / COLUMNS, index=False)
     joins.to_parquet(folder / JOINS, index=False)
+    n_datasets = write_datasets(folder / DATASETS, packages)
     manifest = {
         "format_version": FORMAT_VERSION,
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         **manifest,
-        "counts": {"columns": len(columns), "joins": len(joins)},
+        "counts": {"columns": len(columns), "joins": len(joins), "datasets": n_datasets},
     }
     (folder / MANIFEST).write_text(json.dumps(manifest, indent=2, ensure_ascii=False), "utf-8")
 
