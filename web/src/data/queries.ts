@@ -22,10 +22,10 @@ export function findDatasetByTitle(datasets: Dataset[], title: string) {
   return datasets.find(d => d.title.toLowerCase() === t);
 }
 
-/** A dataset's columns grouped by resource, in file order. */
-export function columnsByResource(dataset: Dataset) {
+/** A dataset's joinable columns grouped by resource, in file order. */
+export function joinableColumnsByResource(dataset: Dataset) {
   const groups = new Map<string, Column[]>();
-  for (const c of dataset.columns)
+  for (const c of dataset.columns.filter(c => c.joinable))
     groups.set(c.resource, [...(groups.get(c.resource) ?? []), c]);
   return groups;
 }

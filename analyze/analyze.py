@@ -5,11 +5,13 @@
     uv run analyze.py run --owner parks --owner transportation    # writes results/
     uv run analyze.py show "Neighbourhoods - 4326::AREA_NAME"
     uv run analyze.py export -o joins.csv
+    uv run analyze.py datasets -r ../web/public/data                # datasets.parquet for existing results
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
 import sys
@@ -22,9 +24,10 @@ from rich.panel import Panel
 from rich.table import Table
 
 from columns import csv_files, profile_columns
+from datasets import write_datasets
 from joins import find_joins
 from packages import read_package_list, select_packages
-from results import ResultsError, columns_frame, package_versions, read_results, write_results
+from results import DATASETS, MANIFEST, ResultsError, columns_frame, package_versions, read_results, write_results
 from views import find_columns, join_table, joins_of, label
 
 DEFAULT_ROOT = "../download/data"
@@ -111,7 +114,7 @@ def cmd_run(args) -> int:
     joins = find_joins(profiles, idf=args.idf, min_distinct=args.min_distinct, min_df=args.min_df,
                        max_df_fraction=args.max_df_fraction, max_df_floor=args.max_df_floor, progress=progress)
 
-    write_results(args.results, columns=columns_frame(profiles), joins=joins, manifest={
+    write_results(args.results, columns=columns_frame(profiles), joins=joins, packages=selection.packages, manifest={
         "data_folder": str(args.data),
         "selection": {
             "owners": args.owner,
@@ -132,6 +135,21 @@ def cmd_export(args) -> int:
     joins = join_table(read_results(args.results))
     joins.to_csv(args.output, index=False)
     out.print(f"{len(joins)} join(s) written to [bold]{args.output}[/bold]")
+    return 0
+
+
+def cmd_datasets(args) -> int:
+    """Write datasets.parquet for the packages of an existing run, without running it again."""
+    manifest_file = args.results / MANIFEST
+    if not manifest_file.is_file():
+        raise ResultsError(f"no complete results in {args.results}; run `analyze.py run` first")
+    names = [p["name"] for p in json.loads(manifest_file.read_text("utf-8"))["packages"]]
+    selection = select_packages(args.data, names=names)
+    if selection.missing or selection.incomplete:
+        err.print(f"[yellow]Not described (missing or incomplete in {args.data}):[/yellow] "
+                  f"{', '.join(selection.missing + selection.incomplete)}")
+    count = write_datasets(args.results / DATASETS, selection.packages)
+    out.print(f"{count} dataset(s) written to [bold]{args.results / DATASETS}[/bold]")
     return 0
 
 
@@ -218,6 +236,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("column", metavar="COLUMN", help="[PACKAGE/]RESOURCE::COLUMN, COLUMN, or a printed label")
     p.add_argument("--top", type=int, default=25, help="show the N best matches, 0 for all (default: 25)")
     p.set_defaults(func=cmd_show)
+
+    p = commands.add_parser("datasets", parents=[data, results],
+                            help="describe the datasets of existing results (topics, civic issues, descriptions)")
+    p.set_defaults(func=cmd_datasets)
 
     p = commands.add_parser("export", parents=[results], help="write every join as a readable CSV")
     p.add_argument("--output", type=Path, default=Path("joins.csv"), help="default: joins.csv")
