@@ -1,37 +1,64 @@
-# Discovery tool for Toronto Open Data: WIP
+# Open Data Discover
 
-This project aims to make it easier for users of the [City of Toronto's open data](https://open.toronto.ca/) to discover relationships
-between data elements. The aspiration is to make open data more discoverable for everyone!
+[![Live Site](https://img.shields.io/badge/Live_Site-GitHub_Pages-2ea44f?style=flat-square&logo=github)](https://open-data-discover.github.io/open-data-discover/) [![V1 Project Board](https://img.shields.io/badge/Roadmap-V1_Project_Board-0969da?style=flat-square&logo=github)](https://github.com/users/MaanasArora/projects/2) [![Civic Tech Toronto](https://img.shields.io/badge/Community-Civic_Tech_Toronto-blue?style=flat-square)](https://civictech.ca/)
 
-Currently, we are building and exposing a data-driven algorithm to find _joinable columns_ between datasets, i.e.
-columns that are likely to share the same domain of values in the catalog. This is helpful for people who are interested in finding
-columns that could be joined (relational/SQL-style) to their column of choice.
+A discovery tool for **[City of Toronto Open Data](https://open.toronto.ca/)** designed to help people find relationships between data elements across the catalog.
 
-## Contributing
+Currently, the project uses a data-driven approach to identify joinable columns across datasets (e.g., columns likely to share the same domain of values), making it easier to see which datasets can be joined (Relational/SQL-style) around a column of interest.
 
-Contributions are welcome from anyone! Please take a look at the GitHub project for the V1 milestone:
-https://github.com/users/MaanasArora/projects/2 and comment
-on any issue you would like to work on. A brief note on your approach/plan would be appreciated.
+| Quick Links | URL |
+| :--- | :--- |
+| **Deployment** | [open-data-discover.github.io/open-data-discover](https://open-data-discover.github.io/open-data-discover/) |
+| **Project Board** | [github.com/users/MaanasArora/projects/2](https://github.com/users/MaanasArora/projects/2) |
 
-### Areas to contribute
+---
 
-We are actively looking for contributions in the following. Feel free to open an issue if there isn't already on the roadmap:
+## How to jump in
 
-- UI/UX improvements to the current interface (e.g. accessibility issues, misleading cues)
-- Design and branding work
-- Bug fixes
-- Validation for the current algorithm
-- User feedback
-- Refactors and improvements of the code (keeping current functionality)
+1. Check the **[V1 Project Board](https://github.com/users/MaanasArora/projects/2)** linked above for open issues.
+2. **Comment on an issue** you'd like to take on and share a brief note on your approach or plan.
+3. **Fork the repository**, create a working branch, and open a Pull Request referencing the issue when ready (marking work-in-progress PRs as **Draft** is encouraged).
 
-These items are out of scope for V1, but we would love to have them later. Feel free to share your ideas for discussion, however
-complete PRs for these features may be reviewed later or not merged to the current version:
+### Good places to help right now
 
-- Overhaul of the UI/UX
-- Creation of databases or complex modifications/additions to the data model
-- UI features that significantly change the user goal (e.g., interleaving through multiple datasets)
-- Features that change the evaluation system / require re-evaluation (e.g., graph algorithms, language analysis)
+- **UI/UX polish and accessibility improvements** (e.g., keyboard navigation, contrast, clear visual cues)
+- **Design and visual identity/branding work**
+- **Bug fixes**
+- **Validation** for the current algorithm
+- **User feedback**
+- **Refactors and improvements** of the code
 
-## Deployment
+### Future ideas (Out of scope for V1)
 
-See the deployed site at https://maanasarora.github.io/open-data-discover
+To keep V1 focused, the following are queued for later rather than V1:
+
+- Major UI/UX overhauls
+- Introducing databases or complex modifications/additions to the data model
+- Workflows that significantly shift the user goal (such as interleaving across multiple datasets)
+- Changes to the core evaluation/ranking approach (such as graph algorithms or language analysis)
+
+> Have an idea in one of these areas? [Open an issue](https://github.com/open-data-discover/open-data-discover/issues/new) to discuss it—we'd love to hear your thoughts and figure out how it could fit into future versions.
+
+---
+
+## Local Development
+
+1. Clone your fork and install dependencies:
+
+```bash
+git clone [https://github.com/](https://github.com/)<your-username>/open-data-discover.git
+cd open-data-discover
+npm install
+```
+
+2. Start the server:
+
+```bash
+npm run dev
+```
+
+---
+
+## License
+
+TBD.
